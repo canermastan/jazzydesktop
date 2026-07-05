@@ -1,0 +1,119 @@
+@extends("layout.html")
+
+@section("content")
+<script src="public/vendor/marked.min.js"></script>
+<link rel="stylesheet" href="public/vendor/highlight/atom-one-dark.min.css">
+<script src="public/vendor/highlight/highlight.min.js"></script>
+<script src="public/vendor/highlight/languages/nim.min.js"></script>
+<script src="public/vendor/highlight/languages/bash.min.js"></script>
+<script src="public/vendor/highlight/languages/json.min.js"></script>
+<script src="public/vendor/highlight/languages/javascript.min.js"></script>
+<script src="public/vendor/highlight/languages/css.min.js"></script>
+<script src="public/vendor/highlight/languages/xml.min.js"></script>
+
+<style>
+    .markdown-body h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 1.5rem; color: #fff; }
+    .markdown-body h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; color: #e5e7eb; border-bottom: 1px solid #2e2e32; padding-bottom: 0.5rem; }
+    .markdown-body h3 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #d1d5db; }
+    .markdown-body p { margin-bottom: 1.25rem; line-height: 1.75; color: #9ca3af; }
+    .markdown-body a { color: #c084fc; text-decoration: none; }
+    .markdown-body a:hover { text-decoration: underline; }
+    .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; color: #9ca3af; }
+    .markdown-body li { margin-bottom: 0.5rem; }
+
+    .markdown-body code { font-family: 'Roboto Mono', monospace; font-size: 0.875rem; }
+    .markdown-body p > code, .markdown-body li > code { background-color: #202127; padding: 0.2rem 0.4rem; border-radius: 0.25rem; color: #e5e7eb; border: 1px solid #2e2e32; }
+    .markdown-body pre code.hljs { background: transparent !important; padding: 0 !important; }
+    .markdown-body strong { color: #fff; font-weight: 600; }
+</style>
+
+<div class="flex-grow w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-col md:flex-row relative" x-data="docsViewer()">
+    
+    <aside class="w-full md:w-64 flex-shrink-0 md:sticky md:top-14 h-auto md:h-[calc(100vh-3.5rem)] overflow-y-auto py-8 pr-6 border-r border-border hidden md:block hide-scrollbar">
+        <template x-for="category in sidebar" :key="category.title">
+            <div class="mb-8">
+                <h5 class="text-xs font-semibold text-white uppercase tracking-wider mb-3" x-text="category.title"></h5>
+                <ul class="space-y-2 text-sm">
+                    <template x-for="item in category.items" :key="item.path">
+                        <li>
+                            <a :href="'docs/' + item.path" 
+                               @click.prevent="loadPage(item.path)"
+                               :class="currentPage === item.path ? 'text-purple-neon font-medium' : 'text-neutral-400 hover:text-white transition-colors'"
+                               class="block py-1"
+                               x-text="item.title">
+                            </a>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+    </aside>
+
+    <main class="flex-grow py-8 md:px-10 lg:px-16 min-w-0 max-w-[850px]">
+        
+        <div x-show="loading" class="animate-pulse">
+            <div class="h-10 bg-surface rounded w-1/3 mb-6"></div>
+            <div class="h-4 bg-surface rounded w-full mb-3"></div>
+            <div class="h-4 bg-surface rounded w-5/6 mb-3"></div>
+            <div class="h-4 bg-surface rounded w-4/6 mb-8"></div>
+            <div class="h-32 bg-surface rounded w-full mb-6"></div>
+        </div>
+
+        <!-- Markdown Content -->
+        <div x-show="!loading && !error" x-ref="mdContent" class="markdown-body min-h-[500px]">
+            {{ content }}
+        </div>
+        
+        <div x-show="error" class="py-12 text-center" style="display: none;">
+            <svg class="mx-auto h-12 w-12 text-neutral-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="text-xl font-medium text-white mb-2">Page Not Found</h3>
+            <p class="text-neutral-400">The documentation page you are looking for does not exist.</p>
+        </div>
+
+        <!-- Pagination UI -->
+        <div class="mt-16 pt-8 border-t border-border flex justify-between items-center" x-show="!loading && !error" style="display: none;">
+            <div class="w-1/2 pr-2 sm:pr-4">
+                <a x-show="prevPage" :href="prevPage ? 'docs/' + prevPage.path : '#'" @click.prevent="prevPage && loadPage(prevPage.path)" class="group block p-3 sm:p-4 rounded-xl border border-border hover:border-purple-glow/50 bg-surface/30 hover:bg-surface/60 transition-all cursor-pointer">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 mb-1 flex items-center gap-1">
+                        <svg class="w-3 h-3 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Previous
+                    </div>
+                    <div class="text-xs sm:text-sm font-medium text-white truncate" x-text="prevPage?.title"></div>
+                </a>
+            </div>
+            <div class="w-1/2 pl-2 sm:pl-4 text-right">
+                <a x-show="nextPage" :href="nextPage ? 'docs/' + nextPage.path : '#'" @click.prevent="nextPage && loadPage(nextPage.path)" class="group block p-3 sm:p-4 rounded-xl border border-border hover:border-purple-glow/50 bg-surface/30 hover:bg-surface/60 transition-all cursor-pointer">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-500 mb-1 flex items-center justify-end gap-1">
+                        Next
+                        <svg class="w-3 h-3 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                    <div class="text-xs sm:text-sm font-medium text-white truncate" x-text="nextPage?.title"></div>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Right Sidebar (TOC) -->
+    <aside class="hidden xl:block w-56 flex-shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto py-8 pl-6 border-l border-border/50 hide-scrollbar">
+        <div x-show="toc.length > 0" x-transition style="display: none;">
+            <h5 class="text-xs font-semibold text-white uppercase tracking-wider mb-4">On this page</h5>
+            <ul class="space-y-2.5 text-[13px]">
+                <template x-for="item in toc" :key="item.id">
+                    <li>
+                        <a :href="'#' + item.id"
+                           @click.prevent="scrollToHeading(item.id)"
+                           :class="item.level === 3 ? 'pl-3 text-neutral-500' : 'text-neutral-400 font-medium'"
+                           class="hover:text-purple-neon transition-colors block leading-tight py-0.5"
+                           x-text="item.text">
+                        </a>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </aside>
+
+</div>
+
+<script src="public/js/docs.js?v=6"></script>
+@endsection

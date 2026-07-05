@@ -1,0 +1,29 @@
+# Nim build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+nimcache/
+nimblecache/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build_static.exe
+
+# Environment
+.env
+.agent/
+.gemini/

@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Getting Started",
+    "items": [
+      { "title": "Introduction", "path": "getting-started" },
+      { "title": "Installation", "path": "installation" },
+      { "title": "CLI & Scaffold", "path": "cli-scaffold" }
+    ]
+  },
+  {
+    "title": "Core Guide",
+    "items": [
+      { "title": "Backend Methods", "path": "backend-methods" },
+      { "title": "Events & WebSockets", "path": "events" },
+      { "title": "Context API", "path": "api-context" },
+      { "title": "Database (ORM)", "path": "api-database" },
+      { "title": "Build & Deployment", "path": "deployment" }
+    ]
+  },
+  {
+    "title": "Runtime API",
+    "items": [
+      { "title": "Window", "path": "api-window" },
+      { "title": "Dialogs", "path": "api-dialogs" },
+      { "title": "System Tray", "path": "api-tray" },
+      { "title": "Clipboard", "path": "api-clipboard" },
+      { "title": "Browser", "path": "api-browser" },
+      { "title": "OS Utilities", "path": "api-helpers" },
+      { "title": "Logger", "path": "api-logger" }
+    ]
+  }
+]
