@@ -19,7 +19,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchDocs() {
             try {
-                const res = await fetch('/public/docs/sidebar.json');
+                const res = await fetch('public/docs/sidebar.json');
                 if (res.ok) {
                     const data = await res.json();
                     let docs = data.flatMap(category => 
@@ -38,7 +38,7 @@ document.addEventListener('alpine:init', () => {
                     // Fetch all markdown contents in the background
                     const fetchPromises = docs.map(async (doc) => {
                         try {
-                            const mdRes = await fetch(`/public/docs/${doc.path}.md`);
+                            const mdRes = await fetch(`public/docs/${doc.path}.md`);
                             if (mdRes.ok) {
                                 const raw = await mdRes.text();
                                 return { ...doc, rawContent: raw, content: raw.toLowerCase() };
