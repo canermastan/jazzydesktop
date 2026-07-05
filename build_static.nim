@@ -1,3 +1,4 @@
+# Build script to generate static site for Github Pages
 import std/[os, strutils, json]
 import jazzy/views/engine
 
