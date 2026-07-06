@@ -22,6 +22,12 @@
                 }
             }
             document.head.appendChild(base);
+            
+            var favicon = document.createElement('link');
+            favicon.rel = 'icon';
+            favicon.type = 'image/png';
+            favicon.href = base.href + 'public/images/logo_face.png';
+            document.head.appendChild(favicon);
         })();
     </script>
     
@@ -72,7 +78,6 @@
     <!-- Alpine.js -->
     <script defer src="public/vendor/alpine.min.js"></script>
 
-    <link rel="icon" type="image/png" href="public/images/logo_face.png">
     <link rel="stylesheet" href="public/css/style.css">
 </head>
 <body class="bg-background text-neutral-300 relative min-h-screen flex flex-col">
