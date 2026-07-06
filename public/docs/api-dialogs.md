@@ -12,11 +12,11 @@ You can create a custom backend method to open a file dialog, restricting the us
 import jazzy_desktop
 
 proc pickImage(): string {.expose.} =
-  # The selectFileDialog takes: (Title, Filters, MultipleSelection)
+  # The selectFileDialog takes: (title, filters, forSave)
   let filePath = selectFileDialog(
     "Select an Image", 
     @[DialogFilter(name: "Images", extensions: "*.png;*.jpg;*.jpeg")], 
-    false
+    false # forSave = false (opens a file selection dialog)
   )
   
   if filePath == "":
