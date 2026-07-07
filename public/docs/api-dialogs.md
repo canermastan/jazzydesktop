@@ -12,11 +12,12 @@ You can create a custom backend method to open a file dialog, restricting the us
 import jazzy_desktop
 
 proc pickImage(): string {.expose.} =
-  # The selectFileDialog takes: (title, filters, forSave)
+  # The selectFileDialog takes: (title, filters, multiSelect, forSave)
   let filePath = selectFileDialog(
     "Select an Image", 
     @[DialogFilter(name: "Images", extensions: "*.png;*.jpg;*.jpeg")], 
-    false # forSave = false (opens a file selection dialog)
+    multiSelect = false,
+    forSave = false
   )
   
   if filePath == "":
@@ -34,6 +35,23 @@ label: Pick Image
 const result = await jazzy.pickImage()
 console.log(result)
 :::
+
+### Multi-Select Files
+
+If you set `multiSelect = true`, the dialog allows the user to select multiple files. The function will return a single string where the selected file paths are separated by a newline (`\n`). You can easily split this in Nim.
+
+```nim
+import std/strutils
+
+proc pickMultipleImages(): seq[string] =
+  let filesStr = selectFileDialog(
+    "Select Images", 
+    @[DialogFilter(name: "Images", extensions: "*.png;*.jpg")], 
+    multiSelect = true
+  )
+  if filesStr == "": return @[]
+  return filesStr.split('\n')
+```
 
 ## Saving a File
 
@@ -78,6 +96,28 @@ proc pickProjectFolder(): string {.expose.} =
   let folderPath = selectFolderDialog("Choose a destination folder")
   return folderPath
 ```
+
+## Native Message Boxes
+
+You can trigger native OS message boxes for alerts, confirmations, or errors using `showMessageBox`.
+
+```nim title="app.nim"
+import jazzy_desktop
+
+proc showAlerts(): bool {.expose.} =
+  # Available MsgBoxType values: mbInfo, mbWarning, mbError, mbQuestion
+  showMessageBox("Update Available", "A new version of the app is ready.", mbInfo)
+  
+  showMessageBox("Critical Error", "Database connection failed!", mbError)
+  return true
+```
+
+:::jazzy-snippet
+action: handleAlert
+label: Show Alert
+---
+await jazzy.showAlerts()
+:::
 
 > [!NOTE]
 > Dialog windows are modal, meaning they will block the user from interacting with the main app window until they select a file or click Cancel. However, since the Jazzy backend runs on a separate thread, your UI animations will continue to play smoothly in the background!
